@@ -5,7 +5,7 @@ Given array [1, 2, 3, 4, 6, 8], your program should return 0. */
 
 #include <stdio.h>
 
-int findRotationNo(int nums[], int startIdx, int endIdxExclusive)
+int findRotationNo(const int nums[], int startIdx, int endIdxExclusive)
 {
     if (endIdxExclusive - startIdx == 1) /* If one element, just return it */
     {
@@ -17,15 +17,15 @@ int findRotationNo(int nums[], int startIdx, int endIdxExclusive)
     }
     else /* Divide and Conquer */
     {
-        // This problem seems simpler... no need to check a strip across the two havlves
-        int midpoint = (endIdxExclusive - startIdx) / 2;
+        // This problem seems simpler... no need to check a strip across the two halves
+        int midpoint = startIdx + (endIdxExclusive - startIdx) / 2;
         int first = findRotationNo(nums, startIdx, midpoint + 1);
         int second = findRotationNo(nums, midpoint + 1, endIdxExclusive);
         return nums[first] <= nums[second] ? first : second;
     }
 }
 
-int main(int argc, char *argv[])
+int main(void)
 {
     int test1[] = {4, 6, 8, 1, 2, 3};
     printf("{4, 6, 8, 1, 2, 3} should rotate %d times\n", findRotationNo(test1, 0, sizeof(test1) / sizeof(test1[0])));
