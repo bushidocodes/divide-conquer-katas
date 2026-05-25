@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <time.h>
 
-int _findKthLargest(int nums[], int count, int k)
+static int _findKthLargest(const int nums[], int count, int k)
 {
     // Pick a random element to act as a pivot
     int pivotIdx = rand() % (count);
@@ -60,15 +60,16 @@ int _findKthLargest(int nums[], int count, int k)
     }
 }
 
-int findKthLargest(int nums[], int count, int k)
+int findKthLargest(const int nums[], int count, int k)
 {
     srand(time(NULL)); // Initialization, should only be called once.
     return _findKthLargest(nums, count, k);
 }
 
-int main(int argc, char *argv[])
+int main(void)
 {
     int test[] = {2, 4, 6, 7, 8, 34, 7, 2, 4, 543, 3, 1, -56, 3242, -9, 45, 2, 3, 4, 65, 7, 43, 76, 14, 4, 14, 76};
     int k = 3;
     printf("Term %d is %d\n", k, findKthLargest(test, sizeof(test) / sizeof(test[0]), k));
+    return 0;
 }

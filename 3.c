@@ -1,37 +1,16 @@
 /* Find the missing number from a given array. Your array will be in form [n, n+c, n+2c, …]. */
 #include <limits.h>
-#include <stdarg.h>
-#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 
-int max(int count, ...);
-int _findMissNo(int nums[], int startIdx, int endIdxExclusive);
-int findMissNo(int nums[], int startIdx, int endIdxExclusive);
+static inline int max2(int a, int b) { return a > b ? a : b; }
 
-// Variadic function that takes a count followed by a variable number of integers equal to count
-// Returns the max int
-int max(int count, ...)
+static int _findMissNo(const int nums[], int startIdx, int endIdxExclusive)
 {
-    va_list args;
-    int val, max = INT_MIN;
-    va_start(args, count);
-    for (int i = 0; i < count; i++)
+    if (endIdxExclusive - startIdx < 3) /* Error Condition - Can't find missing value with a sequence of only two */
     {
-        val = va_arg(args, int);
-        max = max >= val ? max : val;
-    }
-    va_end(args);
-    return max;
-}
-
-int findMissNo(int nums[], int startIdx, int endIdxExclusive)
-{
-
-    if (endIdxExclusive - startIdx < 3) /* Error Condition - Can't find missing value with a sequence of only two*/
-    {
-        printf("Error: Cannot solve with less than three numbers!\n");
-        exit(0);
+        fprintf(stderr, "Error: Cannot solve with less than three numbers!\n");
+        exit(EXIT_FAILURE);
     }
     else if (endIdxExclusive - startIdx < 6) /* Base Case */
     {
@@ -53,18 +32,22 @@ int findMissNo(int nums[], int startIdx, int endIdxExclusive)
         }
         return INT_MIN;
     }
-    else if (endIdxExclusive - startIdx >= 6) /* Divide and Conquer */
+    else /* Divide and Conquer */
     {
-        int midpoint = startIdx + (endIdxExclusive - startIdx) / 2; //(6 - 0) => 3
-        // Partition, but be sure the check the middle band of three
-        return max(3,
-                   findMissNo(nums, startIdx, midpoint),
-                   findMissNo(nums, midpoint - 1, midpoint + 2),
-                   findMissNo(nums, midpoint, endIdxExclusive));
+        int midpoint = startIdx + (endIdxExclusive - startIdx) / 2;
+        // Partition, but be sure to check the middle band of three
+        return max2(_findMissNo(nums, startIdx, midpoint),
+                    max2(_findMissNo(nums, midpoint - 1, midpoint + 2),
+                         _findMissNo(nums, midpoint, endIdxExclusive)));
     }
 }
 
-int main(int argc, char *argv[])
+int findMissNo(const int nums[], int startIdx, int endIdxExclusive)
+{
+    return _findMissNo(nums, startIdx, endIdxExclusive);
+}
+
+int main(void)
 {
     // int test[] = {1, 5, 7, 9, 11, 13, 15, 17, 19, 21}; // Test Missing in front
     int test[] = {1, 3, 5, 7, 9, 13, 15, 17, 19, 21}; // Test Missing in middle
@@ -79,4 +62,5 @@ int main(int argc, char *argv[])
     {
         printf("Sequence is missing %d\n", missingTerm);
     }
+    return 0;
 }

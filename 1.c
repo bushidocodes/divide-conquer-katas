@@ -2,35 +2,14 @@
 // I understand a subarray to be a continuous sequence of elements from the source array
 
 #include <limits.h>
-#include <stdarg.h>
-#include <stdbool.h>
 #include <stdio.h>
 
-// Preprocessor macro to find length of an Array.
-// Must be used in block where declared so array doesn't degrade to pointers
+// Must be used in the block where declared so array doesn't degrade to a pointer
 #define length(n) (sizeof(n) / sizeof(n[0]))
 
-int max(int count, ...);
-int _maxSubArray(int nums[], int startIdx, int endIdxInclusive, bool isCheckingFromMidpoint);
-int maxSubArray(int nums[], int startIdx, int endIdxInclusive);
+static inline int max2(int a, int b) { return a > b ? a : b; }
 
-// Variadic function that takes a count followed by a variable number of integers equal to count
-// Returns the max int
-int max(int count, ...)
-{
-    va_list args;
-    int val, max = INT_MIN;
-    va_start(args, count);
-    for (int i = 0; i < count; i++)
-    {
-        val = va_arg(args, int);
-        max = max >= val ? max : val;
-    }
-    va_end(args);
-    return max;
-}
-
-int _maxSubArray(int nums[], int startIdx, int endIdxInclusive, bool isCheckingFromMidpoint)
+static int _maxSubArray(const int nums[], int startIdx, int endIdxInclusive, bool isCheckingFromMidpoint)
 {
     if (startIdx == endIdxInclusive) // One element
     {
@@ -38,8 +17,8 @@ int _maxSubArray(int nums[], int startIdx, int endIdxInclusive, bool isCheckingF
     }
     else if (startIdx + 1 == endIdxInclusive) // Two elements
     {
-        return max(2, _maxSubArray(nums, startIdx, startIdx, false),
-                   _maxSubArray(nums, endIdxInclusive, endIdxInclusive, false));
+        return max2(_maxSubArray(nums, startIdx, startIdx, false),
+                    _maxSubArray(nums, endIdxInclusive, endIdxInclusive, false));
     }
     else if (isCheckingFromMidpoint) // Checking the middle of three or more
     {
@@ -68,23 +47,23 @@ int _maxSubArray(int nums[], int startIdx, int endIdxInclusive, bool isCheckingF
     else // Divide and Conquer of three or more
     {
         int midpoint = startIdx + (endIdxInclusive + 1 - startIdx) / 2;
-        return max(3,
-                   _maxSubArray(nums, startIdx, midpoint - 1, false),
-                   _maxSubArray(nums, startIdx, endIdxInclusive, true),
-                   _maxSubArray(nums, midpoint, endIdxInclusive, false));
+        return max2(_maxSubArray(nums, startIdx, midpoint - 1, false),
+                    max2(_maxSubArray(nums, startIdx, endIdxInclusive, true),
+                         _maxSubArray(nums, midpoint, endIdxInclusive, false)));
     }
 }
 
 // I need to pass indices because the function loses state about the length of the array when passed as an arg
 // I abstract my kludgey flag on the external API to be close to the original spirit of the problem
-int maxSubArray(int nums[], int startIdx, int endIdxInclusive)
+int maxSubArray(const int nums[], int startIdx, int endIdxInclusive)
 {
     return _maxSubArray(nums, startIdx, endIdxInclusive, false);
 }
 
-int main(int argc, char *argv[])
+int main(void)
 {
     int test[] = {4, 1, 8, -12, 4, 32, -99, 12};
     // int test[] = {2, 3, 4, 5, 7};
-    printf("The sum of the max sub array is %d", maxSubArray(test, 0, length(test) - 1));
+    printf("The sum of the max sub array is %d\n", maxSubArray(test, 0, length(test) - 1));
+    return 0;
 }
