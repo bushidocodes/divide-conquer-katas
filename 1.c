@@ -2,6 +2,7 @@
 // I understand a subarray to be a continuous sequence of elements from the source array
 
 #include <limits.h>
+#include <stdbool.h>
 #include <stdio.h>
 
 // Must be used in the block where declared so array doesn't degrade to a pointer
@@ -17,12 +18,12 @@ static int _maxSubArray(const int nums[], int startIdx, int endIdxInclusive, boo
     }
     else if (startIdx + 1 == endIdxInclusive) // Two elements
     {
-        return max2(_maxSubArray(nums, startIdx, startIdx, false),
-                    _maxSubArray(nums, endIdxInclusive, endIdxInclusive, false));
+        return max2(nums[startIdx] + nums[endIdxInclusive],
+                    max2(nums[startIdx], nums[endIdxInclusive]));
     }
     else if (isCheckingFromMidpoint) // Checking the middle of three or more
     {
-        int midpoint = (endIdxInclusive + 1 - startIdx) / 2;
+        int midpoint = startIdx + (endIdxInclusive + 1 - startIdx) / 2;
         int maxLeft = INT_MIN;
         int maxRight = INT_MIN;
         int buffer = 0;
@@ -42,7 +43,7 @@ static int _maxSubArray(const int nums[], int startIdx, int endIdxInclusive, boo
             maxRight = buffer > maxRight ? buffer : maxRight;
         }
 
-        return maxLeft + maxRight;
+        return maxLeft + (maxRight > 0 ? maxRight : 0);
     }
     else // Divide and Conquer of three or more
     {
