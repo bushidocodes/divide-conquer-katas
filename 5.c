@@ -121,25 +121,54 @@ static int assignPages(const testcase *tc)
 int main(void)
 {
     int numberOfTestCases;
-    scanf("%d", &numberOfTestCases);
-    testcase *testcases[numberOfTestCases];
+    if (scanf("%d", &numberOfTestCases) != 1 || numberOfTestCases <= 0 || numberOfTestCases > 100)
+    {
+        fprintf(stderr, "Error: invalid number of test cases\n");
+        return EXIT_FAILURE;
+    }
+    testcase **testcases = malloc((size_t)numberOfTestCases * sizeof(testcase *));
+    if (testcases == NULL)
+    {
+        fprintf(stderr, "Error: malloc failed\n");
+        return EXIT_FAILURE;
+    }
     for (int i = 0; i < numberOfTestCases; i++)
     {
         testcases[i] = malloc(sizeof(testcase));
-        scanf("%d", &testcases[i]->numberOfBooks);
-        if (testcases[i]->numberOfBooks > MAXBOOKS)
+        if (testcases[i] == NULL)
         {
-            fprintf(stderr, "Error: numberOfBooks (%d) exceeds MAXBOOKS (%d)\n",
+            fprintf(stderr, "Error: malloc failed\n");
+            exit(EXIT_FAILURE);
+        }
+        if (scanf("%d", &testcases[i]->numberOfBooks) != 1)
+        {
+            fprintf(stderr, "Error: failed to read numberOfBooks\n");
+            exit(EXIT_FAILURE);
+        }
+        if (testcases[i]->numberOfBooks <= 0 || testcases[i]->numberOfBooks > MAXBOOKS)
+        {
+            fprintf(stderr, "Error: numberOfBooks (%d) out of range [1, %d]\n",
                     testcases[i]->numberOfBooks, MAXBOOKS);
             exit(EXIT_FAILURE);
         }
         for (int j = 0; j < testcases[i]->numberOfBooks; j++)
-            scanf("%d", &testcases[i]->pageCountOfBooks[j]);
-        scanf("%d", &testcases[i]->numberOfStudents);
+        {
+            if (scanf("%d", &testcases[i]->pageCountOfBooks[j]) != 1)
+            {
+                fprintf(stderr, "Error: failed to read page count\n");
+                exit(EXIT_FAILURE);
+            }
+        }
+        if (scanf("%d", &testcases[i]->numberOfStudents) != 1 || testcases[i]->numberOfStudents <= 0)
+        {
+            fprintf(stderr, "Error: invalid numberOfStudents\n");
+            exit(EXIT_FAILURE);
+        }
     }
     for (int i = 0; i < numberOfTestCases; i++)
         printf("%d\n", assignPages(testcases[i]));
     for (int i = 0; i < numberOfTestCases; i++)
         free(testcases[i]);
+    free(testcases);
     return 0;
 }
