@@ -8,55 +8,43 @@
 
 static int _findKthLargest(const int nums[], int count, int k)
 {
-    // Pick a random element to act as a pivot
-    int pivotIdx = rand() % (count);
-    int pivot = nums[pivotIdx]; /* This is technically not cryptographically secure, but I assume this is not important here */
-    // Partition
+    int pivotIdx = rand() % count;
+    int pivot = nums[pivotIdx];
+
+    // Three-way partition: left (<pivot), right (>pivot); equal elements are counted but not stored
     int left[count];
     int leftLength = 0;
     int right[count];
     int rightLength = 0;
+    int equalCount = 0;
     for (int i = 0; i < count; i++)
     {
-        if (nums[i] <= pivot)
+        if (nums[i] < pivot)
         {
-            left[leftLength] = nums[i];
-            leftLength++;
+            left[leftLength++] = nums[i];
         }
         else if (nums[i] > pivot)
         {
-            right[rightLength] = nums[i];
-            rightLength++;
+            right[rightLength++] = nums[i];
         }
-    }
-    if (rightLength < k - 1) /* We got unlucky, and the kth is in the left side, so search the left side, reducing by the magnitude of the union of the pivot and the right side */
-    {
-        return _findKthLargest(left, leftLength, k - rightLength);
-    }
-    // if the right partion is one less than k, we got lucky and our partition is the kth
-    else if (rightLength == k - 1)
-    {
-        return pivot;
-    }
-    else if (rightLength < 2 * k) // Not enough to partition, just use insertion sort and return kth
-    {
-        int i, key, j;
-        for (i = 0; i < rightLength; i++)
+        else
         {
-            key = right[i];
-            j = i - 1;
-            while (j >= 0 && right[j] < key)
-            {
-                right[j + 1] = right[j];
-                j = j - 1;
-            }
-            right[j + 1] = key;
+            equalCount++;
         }
-        return right[k - 1];
     }
-    else /* right has 2k or more */
+
+    if (rightLength >= k)
     {
         return _findKthLargest(right, rightLength, k);
+    }
+    else if (rightLength + equalCount >= k)
+    {
+        // k falls within the equal-to-pivot band
+        return pivot;
+    }
+    else
+    {
+        return _findKthLargest(left, leftLength, k - rightLength - equalCount);
     }
 }
 
@@ -66,6 +54,7 @@ int findKthLargest(const int nums[], int count, int k)
     return _findKthLargest(nums, count, k);
 }
 
+#ifndef TEST_BUILD
 int main(void)
 {
     int test[] = {2, 4, 6, 7, 8, 34, 7, 2, 4, 543, 3, 1, -56, 3242, -9, 45, 2, 3, 4, 65, 7, 43, 76, 14, 4, 14, 76};
@@ -73,3 +62,4 @@ int main(void)
     printf("Term %d is %d\n", k, findKthLargest(test, sizeof(test) / sizeof(test[0]), k));
     return 0;
 }
+#endif
