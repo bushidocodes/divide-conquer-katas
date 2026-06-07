@@ -12,9 +12,16 @@ static int _findKthLargest(const int nums[], int count, int k)
     int pivot = nums[pivotIdx];
 
     // Three-way partition: left (<pivot), right (>pivot); equal elements are counted but not stored
-    int left[count];
+    int *left = malloc((size_t)count * sizeof(int));
+    int *right = malloc((size_t)count * sizeof(int));
+    if (left == NULL || right == NULL)
+    {
+        fprintf(stderr, "Error: malloc failed\n");
+        free(left);
+        free(right);
+        exit(EXIT_FAILURE);
+    }
     int leftLength = 0;
-    int right[count];
     int rightLength = 0;
     int equalCount = 0;
     for (int i = 0; i < count; i++)
@@ -33,19 +40,27 @@ static int _findKthLargest(const int nums[], int count, int k)
         }
     }
 
+    int result;
     if (rightLength >= k)
     {
-        return _findKthLargest(right, rightLength, k);
+        free(left);
+        result = _findKthLargest(right, rightLength, k);
+        free(right);
     }
     else if (rightLength + equalCount >= k)
     {
         // k falls within the equal-to-pivot band
-        return pivot;
+        free(left);
+        free(right);
+        result = pivot;
     }
     else
     {
-        return _findKthLargest(left, leftLength, k - rightLength - equalCount);
+        free(right);
+        result = _findKthLargest(left, leftLength, k - rightLength - equalCount);
+        free(left);
     }
+    return result;
 }
 
 int findKthLargest(const int nums[], int count, int k)
