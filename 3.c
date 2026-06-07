@@ -3,9 +3,24 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-static inline int max2(int a, int b) { return a > b ? a : b; }
+typedef struct
+{
+    bool found;
+    int value;
+} MaybeInt;
 
-static int _findMissNo(const int nums[], int startIdx, int endIdxExclusive)
+static MaybeInt found_value(int v) { return (MaybeInt){.found = true, .value = v}; }
+static MaybeInt not_found(void) { return (MaybeInt){.found = false, .value = 0}; }
+
+/* Return the first found result among up to three MaybeInt values. */
+static MaybeInt first_found(MaybeInt a, MaybeInt b, MaybeInt c)
+{
+    if (a.found) return a;
+    if (b.found) return b;
+    return c;
+}
+
+static MaybeInt _findMissNo(const int nums[], int startIdx, int endIdxExclusive)
 {
     if (endIdxExclusive - startIdx < 3) /* Error Condition - Can't find missing value with a sequence of only two */
     {
@@ -27,22 +42,23 @@ static int _findMissNo(const int nums[], int startIdx, int endIdxExclusive)
         {
             if (nums[i] > nums[startIdx] + (i - startIdx) * commonDifference)
             {
-                return nums[startIdx] + (i - startIdx) * commonDifference;
+                return found_value(nums[startIdx] + (i - startIdx) * commonDifference);
             }
         }
-        return INT_MIN;
+        return not_found();
     }
     else /* Divide and Conquer */
     {
         int midpoint = startIdx + (endIdxExclusive - startIdx) / 2;
         // Partition, but be sure to check the middle band of three
-        return max2(_findMissNo(nums, startIdx, midpoint),
-                    max2(_findMissNo(nums, midpoint - 1, midpoint + 2),
-                         _findMissNo(nums, midpoint, endIdxExclusive)));
+        return first_found(
+            _findMissNo(nums, startIdx, midpoint),
+            _findMissNo(nums, midpoint - 1, midpoint + 2),
+            _findMissNo(nums, midpoint, endIdxExclusive));
     }
 }
 
-int findMissNo(const int nums[], int startIdx, int endIdxExclusive)
+MaybeInt findMissNo(const int nums[], int startIdx, int endIdxExclusive)
 {
     return _findMissNo(nums, startIdx, endIdxExclusive);
 }
@@ -53,14 +69,14 @@ int main(void)
     int test[] = {1, 3, 5, 7, 9, 13, 15, 17, 19, 21}; // Test Missing in middle
     // int test[] = {1, 3, 5, 7, 9, 11, 13, 15, 17, 21}; // Test Missing in back
     // int test[] = {19, 21}; // Test error handling of too small unsorted array
-    int missingTerm = findMissNo(test, 0, sizeof(test) / sizeof(test[0]));
-    if (missingTerm == INT_MIN)
+    MaybeInt result = findMissNo(test, 0, sizeof(test) / sizeof(test[0]));
+    if (!result.found)
     {
         printf("No terms are missing\n");
     }
     else
     {
-        printf("Sequence is missing %d\n", missingTerm);
+        printf("Sequence is missing %d\n", result.value);
     }
     return 0;
 }
