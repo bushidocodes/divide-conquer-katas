@@ -59,19 +59,17 @@ I'm a bit confused if binary search constitutes divide and conquer. Since we are
 #include <stdio.h>
 #include <stdlib.h>
 
-// Note: problem constraints allow N up to 10^6; increase MAXBOOKS for large inputs
-constexpr int MAXBOOKS = 50;
-
 typedef struct testcase
 {
     int numberOfBooks;
-    int pageCountOfBooks[MAXBOOKS];
+    int *pageCountOfBooks;
     int numberOfStudents;
 } testcase;
 
-[[nodiscard]] static bool canBeAssigned(const testcase *tc, int candidate_min)
+[[nodiscard]] static bool canBeAssigned(const testcase *tc, long long candidate_min)
 {
-    int studentsNeeded = 1, buffer = 0;
+    int studentsNeeded = 1;
+    long long buffer = 0;
     for (int i = 0; i < tc->numberOfBooks; i++)
     {
         if (tc->pageCountOfBooks[i] > candidate_min)
@@ -91,25 +89,25 @@ typedef struct testcase
     return true;
 }
 
-static int assignPages(const testcase *tc)
+static long long assignPages(const testcase *tc)
 {
     // Each student must be assigned at least one book, so error condition if students > books
     if (tc->numberOfStudents > tc->numberOfBooks)
         return -1;
 
     // Accumulate sum of page count of all books
-    long totalPageCount = 0;
+    long long totalPageCount = 0;
     for (int i = 0; i < tc->numberOfBooks; i++)
         totalPageCount += tc->pageCountOfBooks[i];
 
     // Binary search over the range of possible minimums, testing feasibility with canBeAssigned
-    int leftBounds = 0;
-    int rightBounds = (int)totalPageCount;
+    long long leftBounds = 0;
+    long long rightBounds = totalPageCount;
 
     // We know we have the optimal solution when the bounds cross each other
     while (leftBounds <= rightBounds)
     {
-        int midpoint = leftBounds + (rightBounds - leftBounds) / 2;
+        long long midpoint = leftBounds + (rightBounds - leftBounds) / 2;
         if (canBeAssigned(tc, midpoint))
             rightBounds = midpoint - 1;
         else
@@ -140,15 +138,22 @@ int main(void)
             fprintf(stderr, "Error: malloc failed\n");
             exit(EXIT_FAILURE);
         }
+        testcases[i]->pageCountOfBooks = NULL;
         if (scanf("%d", &testcases[i]->numberOfBooks) != 1)
         {
             fprintf(stderr, "Error: failed to read numberOfBooks\n");
             exit(EXIT_FAILURE);
         }
-        if (testcases[i]->numberOfBooks <= 0 || testcases[i]->numberOfBooks > MAXBOOKS)
+        if (testcases[i]->numberOfBooks <= 0 || testcases[i]->numberOfBooks > 1000000)
         {
-            fprintf(stderr, "Error: numberOfBooks (%d) out of range [1, %d]\n",
-                    testcases[i]->numberOfBooks, MAXBOOKS);
+            fprintf(stderr, "Error: numberOfBooks (%d) out of range [1, 1000000]\n",
+                    testcases[i]->numberOfBooks);
+            exit(EXIT_FAILURE);
+        }
+        testcases[i]->pageCountOfBooks = malloc((size_t)testcases[i]->numberOfBooks * sizeof(int));
+        if (testcases[i]->pageCountOfBooks == NULL)
+        {
+            fprintf(stderr, "Error: malloc failed\n");
             exit(EXIT_FAILURE);
         }
         for (int j = 0; j < testcases[i]->numberOfBooks; j++)
@@ -166,9 +171,12 @@ int main(void)
         }
     }
     for (int i = 0; i < numberOfTestCases; i++)
-        printf("%d\n", assignPages(testcases[i]));
+        printf("%lld\n", assignPages(testcases[i]));
     for (int i = 0; i < numberOfTestCases; i++)
+    {
+        free(testcases[i]->pageCountOfBooks);
         free(testcases[i]);
+    }
     free(testcases);
     return 0;
 }
