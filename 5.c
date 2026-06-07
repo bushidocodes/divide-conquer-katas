@@ -95,13 +95,19 @@ static long long assignPages(const testcase *tc)
     if (tc->numberOfStudents > tc->numberOfBooks)
         return -1;
 
-    // Accumulate sum of page count of all books
+    // Accumulate sum of page count of all books; track max for the binary search lower bound
     long long totalPageCount = 0;
+    long long maxPageCount = 0;
     for (int i = 0; i < tc->numberOfBooks; i++)
+    {
         totalPageCount += tc->pageCountOfBooks[i];
+        if (tc->pageCountOfBooks[i] > maxPageCount)
+            maxPageCount = tc->pageCountOfBooks[i];
+    }
 
-    // Binary search over the range of possible minimums, testing feasibility with canBeAssigned
-    long long leftBounds = 0;
+    // Binary search over the range of possible minimums, testing feasibility with canBeAssigned.
+    // Lower bound is max(pages): any valid allocation must accommodate the heaviest single book.
+    long long leftBounds = maxPageCount;
     long long rightBounds = totalPageCount;
 
     // We know we have the optimal solution when the bounds cross each other
