@@ -63,6 +63,7 @@ MaybeInt findMissNo(const int nums[], int startIdx, int endIdxExclusive)
     return _findMissNo(nums, startIdx, endIdxExclusive);
 }
 
+#ifndef TEST_BUILD
 int main(void)
 {
     // int test[] = {1, 5, 7, 9, 11, 13, 15, 17, 19, 21}; // Test Missing in front
@@ -80,3 +81,4 @@ int main(void)
     }
     return 0;
 }
+#endif

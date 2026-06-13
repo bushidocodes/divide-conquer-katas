@@ -25,6 +25,7 @@ int findRotationNo(const int nums[], int startIdx, int endIdxExclusive)
     }
 }
 
+#ifndef TEST_BUILD
 int main(void)
 {
     int test1[] = {4, 6, 8, 1, 2, 3};
@@ -33,3 +34,4 @@ int main(void)
     printf("{1, 2, 3, 4, 6, 8} should rotate %d times\n", findRotationNo(test2, 0, sizeof(test2) / sizeof(test2[0])));
     return 0;
 }
+#endif
