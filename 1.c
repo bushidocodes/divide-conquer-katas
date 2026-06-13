@@ -61,6 +61,7 @@ int maxSubArray(const int nums[], int startIdx, int endIdxInclusive)
     return _maxSubArray(nums, startIdx, endIdxInclusive, false);
 }
 
+#ifndef TEST_BUILD
 int main(void)
 {
     int test[] = {4, 1, 8, -12, 4, 32, -99, 12};
@@ -68,3 +69,4 @@ int main(void)
     printf("The sum of the max sub array is %d\n", maxSubArray(test, 0, length(test) - 1));
     return 0;
 }
+#endif

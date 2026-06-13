@@ -89,7 +89,7 @@ typedef struct testcase
     return true;
 }
 
-static long long assignPages(const testcase *tc)
+long long assignPages(const testcase *tc)
 {
     // Each student must be assigned at least one book, so error condition if students > books
     if (tc->numberOfStudents > tc->numberOfBooks)
@@ -122,6 +122,7 @@ static long long assignPages(const testcase *tc)
     return leftBounds;
 }
 
+#ifndef TEST_BUILD
 int main(void)
 {
     int numberOfTestCases;
@@ -186,3 +187,4 @@ int main(void)
     free(testcases);
     return 0;
 }
+#endif
